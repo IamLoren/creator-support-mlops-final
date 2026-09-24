@@ -1,0 +1,262 @@
+[
+  {
+    "scenario_id": "scenario_0073",
+    "intent": "ACCESS_ACCOUNT",
+    "domain": "education",
+    "uk": "Я вже купила курс і можу увійти в акаунт, але курс не з'явився серед моїх доступних матеріалів.",
+    "en": "I already purchased the course and can log in to my account, but the course is missing from my available materials."
+  },
+  {
+    "scenario_id": "scenario_0074",
+    "intent": "ACCESS_ACCOUNT",
+    "domain": "fitness",
+    "uk": "Оплату за програму списано, але в моєму акаунті доступ до тренувань досі позначений як неактивний.",
+    "en": "The payment for the program went through, but my account still shows my workout access as inactive."
+  },
+  {
+    "scenario_id": "scenario_0075",
+    "intent": "ACCESS_ACCOUNT",
+    "domain": "beauty",
+    "uk": "Посилання на інструкції після процедури відкривається, але після входу я бачу повідомлення, що доступ заборонено.",
+    "en": "The aftercare instructions link opens, but after I sign in I get a message saying access is denied."
+  },
+  {
+    "scenario_id": "scenario_0076",
+    "intent": "ACCESS_ACCOUNT",
+    "domain": "professional_services",
+    "uk": "Я можу увійти в клієнтський кабінет, але не маю дозволу відкрити спільну папку з моїми документами.",
+    "en": "I can sign in to the client portal, but I do not have permission to open the shared folder with my documents."
+  },
+
+  {
+    "scenario_id": "scenario_0077",
+    "intent": "TECHNICAL_ISSUE",
+    "domain": "education",
+    "uk": "Курс відображається в моєму профілі, але відеоплеєр зависає щоразу, коли я запускаю урок.",
+    "en": "The course appears in my profile, but the video player freezes every time I start a lesson."
+  },
+  {
+    "scenario_id": "scenario_0078",
+    "intent": "TECHNICAL_ISSUE",
+    "domain": "fitness",
+    "uk": "Мій план тренувань доступний, але застосунок вилітає щоразу, коли я відкриваю вправу.",
+    "en": "My workout plan is available, but the app crashes every time I open an exercise."
+  },
+  {
+    "scenario_id": "scenario_0079",
+    "intent": "TECHNICAL_ISSUE",
+    "domain": "beauty",
+    "uk": "Сторінка онлайн-запису завантажується, але після натискання кнопки підтвердження з'являється помилка.",
+    "en": "The online booking page loads, but an error appears when I press the confirmation button."
+  },
+  {
+    "scenario_id": "scenario_0080",
+    "intent": "TECHNICAL_ISSUE",
+    "domain": "professional_services",
+    "uk": "Клієнтський портал відкривається і я бачу файли, але завантаження нового документа постійно зависає.",
+    "en": "The client portal opens and I can see my files, but uploading a new document keeps freezing."
+  },
+
+  {
+    "scenario_id": "scenario_0081",
+    "intent": "SCHEDULE_DEADLINE",
+    "domain": "education",
+    "uk": "До якої дати потрібно здати фінальне завдання курсу?",
+    "en": "What is the deadline for submitting the final course assignment?"
+  },
+  {
+    "scenario_id": "scenario_0082",
+    "intent": "SCHEDULE_DEADLINE",
+    "domain": "fitness",
+    "uk": "О котрій годині завтра починається моє групове онлайн-тренування?",
+    "en": "What time does my group online workout start tomorrow?"
+  },
+  {
+    "scenario_id": "scenario_0083",
+    "intent": "SCHEDULE_DEADLINE",
+    "domain": "beauty",
+    "uk": "На котру годину в мене запланована процедура в п'ятницю?",
+    "en": "What time is my procedure scheduled for on Friday?"
+  },
+  {
+    "scenario_id": "scenario_0084",
+    "intent": "SCHEDULE_DEADLINE",
+    "domain": "professional_services",
+    "uk": "Підкажіть, будь ласка, дату і час моєї наступної консультації.",
+    "en": "Could you tell me the date and time of my next consultation?"
+  },
+
+  {
+    "scenario_id": "scenario_0085",
+    "intent": "CHANGE_CANCEL",
+    "domain": "education",
+    "uk": "Чи можна продовжити дедлайн здачі мого завдання до наступного понеділка?",
+    "en": "Can you extend my assignment deadline until next Monday?"
+  },
+  {
+    "scenario_id": "scenario_0086",
+    "intent": "CHANGE_CANCEL",
+    "domain": "fitness",
+    "uk": "Я хочу перенести тренування з середи на п'ятницю.",
+    "en": "I would like to move my workout session from Wednesday to Friday."
+  },
+  {
+    "scenario_id": "scenario_0087",
+    "intent": "CHANGE_CANCEL",
+    "domain": "beauty",
+    "uk": "Чи можна перенести мій запис на процедуру з ранку на вечір?",
+    "en": "Can I reschedule my procedure appointment from the morning to the evening?"
+  },
+  {
+    "scenario_id": "scenario_0088",
+    "intent": "CHANGE_CANCEL",
+    "domain": "professional_services",
+    "uk": "Будь ласка, скасуйте мою консультацію, заплановану на завтра.",
+    "en": "Please cancel my consultation scheduled for tomorrow."
+  },
+
+  {
+    "scenario_id": "scenario_0089",
+    "intent": "CONTENT_USAGE_QUESTION",
+    "domain": "education",
+    "uk": "Чи дозволено мені користуватися завантаженими матеріалами курсу після його завершення?",
+    "en": "Am I allowed to keep using the downloaded course materials after the course ends?"
+  },
+  {
+    "scenario_id": "scenario_0090",
+    "intent": "CONTENT_USAGE_QUESTION",
+    "domain": "fitness",
+    "uk": "Чи можу я повторювати цей план тренувань самостійно після завершення програми?",
+    "en": "Can I continue repeating this workout plan on my own after the program ends?"
+  },
+  {
+    "scenario_id": "scenario_0091",
+    "intent": "CONTENT_USAGE_QUESTION",
+    "domain": "beauty",
+    "uk": "Скільки днів мені потрібно дотримуватися рекомендацій з інструкції після процедури?",
+    "en": "For how many days should I follow the recommendations in the aftercare instructions?"
+  },
+  {
+    "scenario_id": "scenario_0092",
+    "intent": "CONTENT_USAGE_QUESTION",
+    "domain": "professional_services",
+    "uk": "Чи можу я передати отриманий шаблон документа своєму колезі для використання?",
+    "en": "May I share the document template I received with my colleague for their use?"
+  },
+
+  {
+    "scenario_id": "scenario_0093",
+    "intent": "SERVICE_INFO",
+    "domain": "education",
+    "uk": "Що саме входить у програму цього онлайн-курсу?",
+    "en": "What exactly is included in this online course?"
+  },
+  {
+    "scenario_id": "scenario_0094",
+    "intent": "SERVICE_INFO",
+    "domain": "fitness",
+    "uk": "Що входить у місячний фітнес-абонемент?",
+    "en": "What is included in the monthly fitness membership?"
+  },
+  {
+    "scenario_id": "scenario_0095",
+    "intent": "SERVICE_INFO",
+    "domain": "beauty",
+    "uk": "Що входить у процедуру та скільки часу вона зазвичай триває?",
+    "en": "What does the procedure include and how long does it usually take?"
+  },
+  {
+    "scenario_id": "scenario_0096",
+    "intent": "SERVICE_INFO",
+    "domain": "professional_services",
+    "uk": "Що входить у стандартну консультацію та які питання можна на ній обговорити?",
+    "en": "What is included in a standard consultation and what topics can be discussed?"
+  },
+
+  {
+    "scenario_id": "scenario_0097",
+    "intent": "FEEDBACK_COMPLAINT",
+    "domain": "education",
+    "uk": "Я незадоволена якістю курсу: пояснення дуже поверхневі й не відповідають заявленій програмі.",
+    "en": "I am disappointed with the course quality because the explanations are too superficial and do not match the advertised program."
+  },
+  {
+    "scenario_id": "scenario_0098",
+    "intent": "FEEDBACK_COMPLAINT",
+    "domain": "fitness",
+    "uk": "Хочу залишити скаргу: тренер уже втретє запізнюється на заняття.",
+    "en": "I want to make a complaint because the trainer has been late to the session three times."
+  },
+  {
+    "scenario_id": "scenario_0099",
+    "intent": "FEEDBACK_COMPLAINT",
+    "domain": "beauty",
+    "uk": "Я незадоволена обслуговуванням у салоні й хочу залишити відгук про свій досвід.",
+    "en": "I am unhappy with the service at the salon and would like to leave feedback about my experience."
+  },
+  {
+    "scenario_id": "scenario_0100",
+    "intent": "FEEDBACK_COMPLAINT",
+    "domain": "professional_services",
+    "uk": "Хочу поскаржитися на дуже повільну комунікацію та затримки з відповідями на мої запити.",
+    "en": "I would like to complain about very slow communication and delays in responding to my requests."
+  },
+
+  {
+    "scenario_id": "scenario_0101",
+    "intent": "HUMAN_SUPPORT",
+    "domain": "education",
+    "uk": "Я хочу поговорити з викладачем або співробітником підтримки, а не з автоматичним помічником.",
+    "en": "I would like to speak with a teacher or support representative instead of an automated assistant."
+  },
+  {
+    "scenario_id": "scenario_0102",
+    "intent": "HUMAN_SUPPORT",
+    "domain": "fitness",
+    "uk": "Можете з'єднати мене з тренером, щоб я обговорила це питання безпосередньо з ним?",
+    "en": "Can you connect me with a trainer so I can discuss this directly with them?"
+  },
+  {
+    "scenario_id": "scenario_0103",
+    "intent": "HUMAN_SUPPORT",
+    "domain": "beauty",
+    "uk": "Я хочу поговорити з адміністратором салону особисто.",
+    "en": "I would like to speak directly with a salon administrator."
+  },
+  {
+    "scenario_id": "scenario_0104",
+    "intent": "HUMAN_SUPPORT",
+    "domain": "professional_services",
+    "uk": "Будь ласка, з'єднайте мене з консультантом, мені потрібна відповідь від людини.",
+    "en": "Please connect me with a consultant because I need an answer from a person."
+  },
+
+  {
+    "scenario_id": "scenario_0105",
+    "intent": "OTHER",
+    "domain": "education",
+    "uk": "Як приготувати пасту карбонара вдома?",
+    "en": "How can I make carbonara pasta at home?"
+  },
+  {
+    "scenario_id": "scenario_0106",
+    "intent": "OTHER",
+    "domain": "fitness",
+    "uk": "Яка сьогодні погода у Варшаві?",
+    "en": "What is the weather like in Warsaw today?"
+  },
+  {
+    "scenario_id": "scenario_0107",
+    "intent": "OTHER",
+    "domain": "beauty",
+    "uk": "Які музеї варто відвідати під час поїздки до Парижа?",
+    "en": "Which museums should I visit during a trip to Paris?"
+  },
+  {
+    "scenario_id": "scenario_0108",
+    "intent": "OTHER",
+    "domain": "professional_services",
+    "uk": "Привіт! Як у вас сьогодні справи?",
+    "en": "Hi! How are you doing today?"
+  }
+]
