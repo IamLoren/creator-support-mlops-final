@@ -1,0 +1,7 @@
+{
+  "model_name": "customer-support-intent-classifier",
+  "model_version": 1,
+  "production_macro_f1": 0.8860670194003527,
+  "production_accuracy": 0.8888888888888888,
+  "production_errors": 4
+}

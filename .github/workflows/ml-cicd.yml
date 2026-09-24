@@ -1,0 +1,266 @@
+name: Final MLOps CI/CD
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  PYTHON_VERSION: "3.14"
+
+jobs:
+  train:
+    name: Train and validate model
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install training dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-training.txt
+
+      - name: Configure DVC remote
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
+        run: |
+          dvc remote modify --local r2 endpointurl "$R2_ENDPOINT_URL"
+          dvc remote modify --local r2 access_key_id "$R2_ACCESS_KEY_ID"
+          dvc remote modify --local r2 secret_access_key "$R2_SECRET_ACCESS_KEY"
+
+      - name: Pull dataset with DVC
+        run: |
+          dvc pull
+
+      - name: Validate dataset
+        run: |
+          python scripts/validate_dataset.py \
+            --input data/annotated/customer_support_intents.json
+
+      - name: Start MLflow server
+        run: |
+          python -m mlflow server \
+            --backend-store-uri sqlite:///mlflow.db \
+            --artifacts-destination ./mlartifacts \
+            --host 127.0.0.1 \
+            --port 5000 \
+            > mlflow-server.log 2>&1 &
+
+          for i in {1..30}; do
+            if curl \
+              --fail \
+              --silent \
+              http://127.0.0.1:5000/health
+            then
+              echo "MLflow is ready."
+              exit 0
+            fi
+
+            echo "Waiting for MLflow..."
+            sleep 2
+          done
+
+          cat mlflow-server.log
+          exit 1
+
+      - name: Train and finalize candidate model
+        run: |
+          python training/finalize_model.py
+
+      - name: Show final metrics
+        run: |
+          cat artifacts/final_model/metrics.json
+
+      - name: Run model quality gate
+        run: |
+          python scripts/quality_gate.py
+
+      - name: Verify model artifacts
+        run: |
+          test -f artifacts/final_model/model.joblib
+          test -f artifacts/final_model/metrics.json
+          test -f artifacts/final_model/model_metadata.json
+          test -f artifacts/final_model/classification_report.json
+
+          ls -lah artifacts/final_model
+
+      - name: Upload candidate model
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-model
+          path: artifacts/final_model/
+          if-no-files-found: error
+          retention-days: 7
+
+
+  build-and-test:
+    name: Build and smoke test application
+    runs-on: ubuntu-latest
+
+    needs:
+      - train
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download trained model
+        uses: actions/download-artifact@v4
+        with:
+          name: final-model
+          path: artifacts/final_model
+
+      - name: Build application stack
+        run: |
+          docker compose build \
+            inference \
+            frontend
+
+      - name: Start application stack
+        run: |
+          docker compose up \
+            -d \
+            inference \
+            frontend
+
+      - name: Wait for inference API
+        run: |
+          for i in {1..30}; do
+            if curl \
+              --fail \
+              --silent \
+              http://127.0.0.1:8000/health
+            then
+              echo
+              echo "Inference API is ready."
+              exit 0
+            fi
+
+            echo "Waiting for inference API..."
+            sleep 2
+          done
+
+          docker compose logs inference
+          exit 1
+
+      - name: Wait for frontend
+        run: |
+          for i in {1..30}; do
+            if curl \
+              --fail \
+              --silent \
+              http://127.0.0.1:8081/ \
+              > /dev/null
+            then
+              echo "Frontend is ready."
+              exit 0
+            fi
+
+            echo "Waiting for frontend..."
+            sleep 2
+          done
+
+          docker compose logs frontend
+          exit 1
+
+      - name: Smoke test prediction through frontend proxy
+        run: |
+          RESPONSE=$(curl \
+            --fail \
+            --silent \
+            --show-error \
+            -X POST \
+            http://127.0.0.1:8081/api/predict \
+            -H "Content-Type: application/json" \
+            --data '{"text":"I cannot access my account."}')
+
+          echo "Prediction response:"
+          echo "$RESPONSE"
+
+          echo "$RESPONSE" \
+            | grep "ACCESS_ACCOUNT"
+
+      - name: Show container status
+        if: always()
+        run: |
+          docker compose ps
+
+      - name: Show application logs on failure
+        if: failure()
+        run: |
+          docker compose logs \
+            inference \
+            frontend
+
+      - name: Stop application stack
+        if: always()
+        run: |
+          docker compose down
+
+
+  publish:
+    name: Publish deployment images
+    runs-on: ubuntu-latest
+
+    needs:
+      - train
+      - build-and-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download trained model
+        uses: actions/download-artifact@v4
+        with:
+          name: final-model
+          path: artifacts/final_model
+
+      - name: Prepare GHCR image names
+        run: |
+          echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" \
+            >> "$GITHUB_ENV"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push inference image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/creator-support-inference:latest
+            ghcr.io/${{ env.OWNER_LC }}/creator-support-inference:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=/api
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/creator-support-frontend:latest
+            ghcr.io/${{ env.OWNER_LC }}/creator-support-frontend:${{ github.sha }}
