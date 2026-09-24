@@ -24,3 +24,31 @@ frontend/dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Frontend environment
+frontend/.env
+
+# Frontend environment
+frontend/.env
+
+# Runtime / generated artifacts
+artifacts/production/
+artifacts/error_analysis/
+artifacts/final_model/
+artifacts/model_comparison.csv
+artifacts/augmentation_impact.json
+
+# Local MLflow state
+mlflow.db
+mlartifacts/
+
+# Grafana local backups
+monitoring/grafana/backups/
+
+# Frontend generated files
+frontend/node_modules/
+frontend/dist/
+
+# Local environment
+.env
+*.env.local
