@@ -264,3 +264,171 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/creator-support-frontend:latest
             ghcr.io/${{ env.OWNER_LC }}/creator-support-frontend:${{ github.sha }}
+
+
+  deploy:
+    name: Deploy to Hetzner production
+    runs-on: ubuntu-latest
+
+    needs:
+      - publish
+
+    if: github.ref == 'refs/heads/main'
+
+    concurrency:
+      group: creator-support-production
+      cancel-in-progress: false
+
+    steps:
+      - name: Validate deployment secrets
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+        run: |
+          test -n "$PROD_HOST" || {
+            echo "PROD_HOST is missing"
+            exit 1
+          }
+
+          test -n "$PROD_USER" || {
+            echo "PROD_USER is missing"
+            exit 1
+          }
+
+          test -n "$PROD_SSH_KEY" || {
+            echo "PROD_SSH_KEY is missing"
+            exit 1
+          }
+
+          echo "Deployment secrets are configured."
+
+      - name: Configure deployment SSH
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$PROD_SSH_KEY" \
+            > ~/.ssh/id_ed25519
+
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan \
+            -H "$PROD_HOST" \
+            >> ~/.ssh/known_hosts
+
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy exact image version
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh \
+            -i ~/.ssh/id_ed25519 \
+            "$PROD_USER@$PROD_HOST" \
+            "IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          cd /opt/creator-support-mlops
+
+          echo "Updating deployment repository..."
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+          echo "Deploying image tag: ${IMAGE_TAG}"
+
+          if grep -q '^IMAGE_TAG=' .env.production; then
+            sed -i \
+              "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" \
+              .env.production
+          else
+            printf \
+              '\nIMAGE_TAG=%s\n' \
+              "$IMAGE_TAG" \
+              >> .env.production
+          fi
+
+          echo "Pulling production images..."
+          docker compose \
+            --env-file .env.production \
+            -f compose.production.yml \
+            pull \
+            inference \
+            frontend
+
+          echo "Updating production stack..."
+          docker compose \
+            --env-file .env.production \
+            -f compose.production.yml \
+            up -d
+
+          echo "Waiting for production health check..."
+
+          READY=0
+
+          for i in {1..30}; do
+            if curl \
+              --fail \
+              --silent \
+              http://127.0.0.1:8081/api/health \
+              > /dev/null
+            then
+              READY=1
+              echo "Production application is ready."
+              break
+            fi
+
+            echo "Waiting for production application..."
+            sleep 2
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "Production health check failed."
+
+            docker compose \
+              --env-file .env.production \
+              -f compose.production.yml \
+              ps
+
+            docker compose \
+              --env-file .env.production \
+              -f compose.production.yml \
+              logs \
+              --tail=100 \
+              inference \
+              frontend
+
+            exit 1
+          fi
+
+          echo "Running production prediction smoke test..."
+
+          RESPONSE=$(curl \
+            --fail \
+            --silent \
+            --show-error \
+            -X POST \
+            http://127.0.0.1:8081/api/predict \
+            -H "Content-Type: application/json" \
+            --data '{"text":"I cannot access my account."}')
+
+          echo "$RESPONSE"
+
+          echo "$RESPONSE" \
+            | grep "ACCESS_ACCOUNT"
+
+          echo "Production containers:"
+
+          docker compose \
+            --env-file .env.production \
+            -f compose.production.yml \
+            ps
+
+          echo "Production deployment completed successfully."
+          REMOTE
